@@ -1,10 +1,8 @@
-
 package service;
 
 import Model.Admin;
 
-
-public class AdminService implements IAdminService{
+public class AdminService implements IAdminService {
 
     @Override
     public void add(Admin e) {
@@ -21,8 +19,6 @@ public class AdminService implements IAdminService{
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    
-
     @Override
     public void display() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -32,5 +28,5 @@ public class AdminService implements IAdminService{
     public Admin findByID(String id) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
-    
+
 }

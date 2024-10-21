@@ -3,7 +3,7 @@ package service;
 
 import model.Coach;
 
-public interface ICoachService extends service<Coach>{
+public interface ICoachService extends Service<Coach>{
     
     public void add(Coach e);
 

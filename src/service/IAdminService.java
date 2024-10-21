@@ -3,7 +3,7 @@ package service;
 
 import Model.Admin;
 
-public interface IAdminService extends service<Admin>{
+public interface IAdminService extends Service<Admin>{
     
     public void add(Admin e);
 

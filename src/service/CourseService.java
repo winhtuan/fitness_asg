@@ -5,40 +5,40 @@ import Model.Users;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import model.Coach;
 import reponsitory.CourseRepository;
-import reponsitory.TrainingRepository;
+import reponsitory.RegisteringRepository;
+import static service.Service.COURSE_REGEX;
+import static service.Service.USER_REGEX;
 import view.Validation;
 
 public class CourseService implements ICourseService {
 
-    private Map<String, List<String>> userCourseMap;
     private List<Course> listCourse;
+    private Map<String, List<Course>> listRegistering;
     private CourseRepository courseRepository;
-    private TrainingRepository trainingRepository;
-    private Validation check;
+    private RegisteringRepository registeringRepository;
     private UserService userService;
+    private Validation check;
 
     public CourseService() {
         courseRepository = new CourseRepository();
-        trainingRepository = new TrainingRepository();
+        registeringRepository = new RegisteringRepository(this);
         listCourse = courseRepository.readFile();
-        userCourseMap = trainingRepository.readFile();
         userService = new UserService();
         check = new Validation();
-
+        listRegistering = registeringRepository.readFile();
     }
 
-    public static void main(String[] args) {
-        CourseService courseService = new CourseService();
-        courseService.displayUserCourses("CUS-0001");
-        courseService.displayUserCourses("CUS-0003");
-        courseService.displayUserCourses("CUS-0002");
+    public Map<String, List<Course>> getListRegistering() {
+        return listRegistering;
     }
 
     public void registerUserToCourse() {
-        String response = check.getInputString("Are you a new user (yes/no)? ", "^(yes|no)", "This Respone");
+        String response = check.getInputString("Are you a new user (yes/no)? ", "^(yes|no)", "This Response");
         String userId = null;
         Users user;
+
         if (response.equalsIgnoreCase("yes")) {
             user = userService.registNewUser();
             userId = user.getId();
@@ -46,39 +46,62 @@ public class CourseService implements ICourseService {
             userId = check.getID("Enter ID: ", USER_REGEX, "User ID");
             user = userService.findByID(userId);
             if (user == null) {
-                System.out.println("Error! System can't find users: " + userId);
+                System.out.println("Error! System can't find user with ID: " + userId);
                 return;
             }
         }
+
         display();
         do {
             String courseId = check.getInputString("Enter course ID to register: ", COURSE_REGEX, "Course ID");
-            registCourse(courseId, user);
-        } while (check.continueConfirm("Do you want to continue regis course"));
+            Course course = findByID(courseId);
+            if (course != null) {
+                registerCourse(user, course);
+            } else {
+                System.out.println("Course with ID " + courseId + " not found.");
+            }
+        } while (check.continueConfirm("Do you want to continue registering for courses?"));
+
         displayUserCourses(userId);
     }
 
     @Override
-    public void registCourse(String courseID, Users user) {
-        Course targetCourse = findByID(courseID);
-        if (targetCourse == null) {
-            System.out.println("Invalid course. Please try again.");
+    public void registerCourse(Users user, Course course) {
+        listRegistering.putIfAbsent(user.getId(), new ArrayList<>());
+        listRegistering.get(user.getId()).add(course);
+        System.out.println("Course " + course.getCourseId() + " with coach " + course.getCoachID() + " registered for user " + user.getName());
+        registeringRepository.writeFile(listRegistering);
+    }
+
+    public void displayUserCourses(String userId) {
+        List<Course> userCourses = listRegistering.get(userId);
+        if (userCourses == null || userCourses.isEmpty()) {
+            System.out.println("User " + userId + " has not registered for any courses.");
             return;
         }
-        userCourseMap.putIfAbsent(user.getId(), new ArrayList<>());
-        userCourseMap.get(user.getId()).add(courseID);
-        System.out.println("Course " + courseID + "with coach" + targetCourse.getCourseId() + " registered for user " + user.getName());
-        trainingRepository.writeFile(userCourseMap);
+        System.out.println("Courses registered by user " + userId + ":");
+        for (Course course : userCourses) {
+            Coach coach = new CoachService().findByID(course.getCoachID());
+            System.out.printf("%-10s | %-30s |  %-30s | $%-15.2f | %-20s\n",
+                    course.getCourseId(),
+                    course.getCourseName(),
+                    coach.getName(),
+                    course.getPrice(),
+                    course.getWorkout().getDescription());
+        }
     }
 
     @Override
     public void display() {
         System.out.println("List All Courses:");
-        System.out.printf("%-10s | %-30s | %-15s | %-20s\n", "Course ID", "Course Name", "Price", "Decription");
+        System.out.printf("%-10s | %-30s | %-15s | %-20s\n", "Course ID", "Course Name", "Price", "Description");
         System.out.println("-".repeat(60));
         for (Course course : listCourse) {
-            System.out.printf("%-10s | %-30s | $%-15.2f | %-20s\n", course.getCourseId(), course.getCourseName(),
-                    course.getPrice(), course.getWorkout().getDescription());
+            System.out.printf("%-10s | %-30s | $%-15.2f | %-20s\n",
+                    course.getCourseId(),
+                    course.getCourseName(),
+                    course.getPrice(),
+                    course.getWorkout().getDescription());
         }
         System.out.println("-".repeat(60));
     }
@@ -92,28 +115,4 @@ public class CourseService implements ICourseService {
         }
         return null;
     }
-
-    private void displayUserCourses(String userId) {
-        List<String> userCourses = userCourseMap.get(userId);
-        if (userCourses == null || userCourses.isEmpty()) {
-            System.out.println("User " + userId + " has not registered for any courses.");
-            return;
-        }
-
-        System.out.println("Courses registered by user " + userId + ":");
-        for (String courseId : userCourses) {
-            Course course = findByID(courseId);
-            if (course != null) {
-                System.out.printf("%-10s | %-30s | $%-15.2f | %-20s\n", course.getCourseId(), course.getCourseName(),
-                        course.getPrice(), course.getWorkout().getDescription());
-            } else {
-                System.out.println("Course with ID " + courseId + " not found.");
-            }
-        }
-    }
-
-    public Map<String, List<String>> getUserCourseMap() {
-        return userCourseMap;
-    }
-
 }

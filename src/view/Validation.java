@@ -161,39 +161,6 @@ public class Validation {
         }
     }
 
-    public double getValue(String msg, int min, int max) {
-        double value = 0;
-        System.out.print(msg);
-        while (true) {
-            try {
-                String input = sc.nextLine().trim();
-                if (input.isEmpty()) {
-                    throw new IllegalArgumentException("Error: Input cannot be null or empty!");
-                }
-                value = Double.parseDouble(input);
-
-                if (value >= min && value <= max) {
-                    break;
-                } else {
-                    if (value < min) {
-                        throw new IllegalArgumentException("Error: Please enter value bigger " + min);
-                    } else if (value > max) {
-                        throw new IllegalArgumentException("Error: Please enter value smaller " + max);
-                    }
-
-                    if (value <= 0) {
-                        throw new IllegalArgumentException("Error: Please enter positive number!");
-                    }
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Error: Please enter a valid integer!");
-            } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        return value;
-    }
-
     public LocalDate getDate(String msg) {
         try {
             System.out.print(msg);

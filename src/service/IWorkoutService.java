@@ -4,6 +4,6 @@ package service;
 import Model.Workout;
 
 
-public interface IWorkoutService extends service<Workout>{
+public interface IWorkoutService extends Service<Workout>{
     
 }

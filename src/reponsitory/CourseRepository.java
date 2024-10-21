@@ -33,20 +33,29 @@ public class CourseRepository implements Reponsitory<Course, List<Course>> {
                     String coachID = values[4];
                     String workoutDescription = values[5].trim();
 
-                    String[] exerciseLine = br.readLine().split(":")[1].split(",");
+                    line = br.readLine();
+                    if (line == null || !line.startsWith("Exercises:")) {
+                        break;
+                    }
+                    String[] exerciseLine = line.split(":")[1].split(",");
                     List<String> exercises = new ArrayList<>(Arrays.asList(exerciseLine));
 
-                    String[] nutritionLine = br.readLine().split(":")[1].split(",");
+                    line = br.readLine();
+                    if (line == null || !line.startsWith("Nutrition Plan:")) {
+                        break;
+                    }
+                    String[] nutritionLine = line.split(":")[1].split(",");
                     List<String> nutrition = new ArrayList<>(Arrays.asList(nutritionLine));
 
                     Map<LocalDate, List<String>> schedule = new HashMap<>();
-                    br.readLine();
+
                     while ((line = br.readLine()) != null && line.startsWith("Date:")) {
                         String[] scheduleData = line.split(" - Activities: ");
                         LocalDate date = LocalDate.parse(scheduleData[0].substring(6), DATE_FORMAT);
                         List<String> activities = Arrays.asList(scheduleData[1].split(", "));
                         schedule.put(date, activities);
                     }
+
                     Workout workout = new Workout(workoutDescription, exercises, nutrition, schedule);
                     Course course = new Course(courseId, courseName, price, time, coachID, workout);
 

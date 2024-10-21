@@ -13,16 +13,14 @@ import reponsitory.ProgressRepository;
 import reponsitory.RegisteringRepository;
 import view.Validation;
 
-public class ProgressTracker {
+public class ProgressService implements IProgressService{
 
-    private RegisteringRepository registeringRepository;
     private List<Progress> allProgresses;
     private List<Course> listCourse;
     private CourseService courseService;
     private Validation check;
 
-    public ProgressTracker() {
-        registeringRepository = new RegisteringRepository();
+    public ProgressService() {
         courseService = new CourseService();
         listCourse = new CourseRepository().readFile();
         check = new Validation();
@@ -30,8 +28,7 @@ public class ProgressTracker {
     }
 
     public static void main(String[] args) {
-        new ProgressTracker().displayUsersByCoach();
-
+        new ProgressService().displayUsersByCoach();
     }
 
     public void displayUsersByCoach() {
@@ -65,19 +62,18 @@ public class ProgressTracker {
             }
         }
         String selectedUserId = check.getID("Enter the user ID to view progress: ", "CUS-\\d{4}", "User ID");
-        viewUserProgress(selectedUserId);
+        courseService.displayUserCourses(selectedUserId);
+        String selectedCourseID = check.getID("Enter the courseID: ", "COR-\\d{4}", "Course ID");
+        viewUserProgress(selectedUserId, selectedCourseID);
     }
 
-    public void viewUserProgress(String userId) {
+    @Override
+    public void viewUserProgress(String userId, String courseID) {
         List<Course> userCourses = new RegisteringRepository(courseService).readFile().get(userId);
         if (userCourses == null || userCourses.isEmpty()) {
             System.out.println("No courses found for user " + userId + ".");
             return;
         }
-        courseService.displayUserCourses(userId);
-
-        String courseID = check.getID("Enter the courseID: ", "COR-\\d{4}", "Course ID");
-        Course course = courseService.findByID(courseID);
 
         System.out.println("Progress Evaluation for user " + userId + ":");
         Progress userProgress = allProgresses.stream()
@@ -86,22 +82,38 @@ public class ProgressTracker {
                 .orElse(null);
 
         if (userProgress != null) {
-            int completedCount = 0;
-            int totalExercises = 0;
+            Map<LocalDate, Map<String, Boolean>> progressMap = userProgress.getProgress();
 
-            // Count distinct exercises and completed exercises
-            for (Map.Entry<LocalDate, Map<String, Boolean>> entry : userProgress.getProgress().entrySet()) {
-                Map<String, Boolean> exercises = entry.getValue();
-                totalExercises += exercises.size(); // Count all exercises for the date
-                completedCount += (int) exercises.values().stream().filter(Boolean::booleanValue).count(); // Count completed exercises
+            if (progressMap.isEmpty()) {
+                System.out.println("No exercises recorded for this course.");
+                return;
             }
 
-            double progressPercentage = (totalExercises > 0) ? (double) completedCount / totalExercises * 100 : 0;
+            int totalExercises = 0;
+            int completedExercises = 0;
 
-            System.out.printf("Course ID: %s, Course Name: %s, Progress: %.2f%% (%d/%d exercises completed)\n",
-                    course.getCourseId(), course.getCourseName(), progressPercentage, completedCount, totalExercises);
+            for (Map<String, Boolean> exerciseMap : progressMap.values()) {
+                for (Boolean status : exerciseMap.values()) {
+                    totalExercises++;
+                    if (status) {
+                        completedExercises++;
+                    }
+                }
+            }
+
+            double progressPercentage = (totalExercises > 0) ? ((double) completedExercises / totalExercises) * 100 : 0;
+
+            System.out.println("Progress for User: " + userId + " in Course: " + courseID);
+            System.out.println("Total Exercises: " + totalExercises);
+            System.out.println("Completed Exercises: " + completedExercises);
+            System.out.printf("Completion: %.2f%%\n", progressPercentage);
         } else {
             System.out.println("No progress found for user " + userId + " in course " + courseID);
         }
+    }
+
+    @Override
+    public void updateUserProgress(String userId, String courseID) {
+        
     }
 }

@@ -1,8 +1,10 @@
 package reponsitory;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -24,60 +26,70 @@ public class ProgressRepository implements IProgressReponsitory {
     @Override
     public List<Progress> readFile() {
         List<Progress> progresses = new ArrayList<>();
-
         try (BufferedReader br = new BufferedReader(new FileReader(PATH))) {
             String line;
-            String currentUserID = null;
-            String currentCourseID = null;
-            Map<LocalDate, Map<String, Boolean>> progressMap = new HashMap<>();
-
             while ((line = br.readLine()) != null) {
-                line = line.trim(); 
-                if (line.contains(",")) {
-                    if (currentUserID != null && currentCourseID != null) {
-                        progresses.add(new Progress(currentUserID, currentCourseID, new HashMap<>(progressMap)));
-                        progressMap.clear(); 
-                    }
-
-                    String[] ids = line.split(",");
-                    currentUserID = ids[0].trim();
-                    currentCourseID = ids[1].trim();
+                String[] values = line.split(",");
+                if (values.length >= 2) {
+                    String userID = values[0].trim();
+                    String courseID = values[1].trim();
+                    Map<LocalDate, Map<String, Boolean>> progressMap = new HashMap<>();
 
                     line = br.readLine();
-                    if (line == null || !line.startsWith("Progress:")) {
-                        break; 
+                    if (line != null && line.startsWith("Progess:")) {
+                        while ((line = br.readLine()) != null && !line.isEmpty()) {
+                            if (line.startsWith("Date:")) {
+                                String progressEntry = line.substring("Date:".length()).trim();
+                                String[] progressData = progressEntry.split(",");
+
+                                if (progressData.length == 3) {
+                                    LocalDate date = check.convertStringToLocalDate(progressData[0].trim());
+                                    String exerciseName = progressData[1].trim();
+                                    Boolean status = Boolean.valueOf(progressData[2].trim());
+
+                                    progressMap.putIfAbsent(date, new HashMap<>());
+                                    progressMap.get(date).put(exerciseName, status);
+                                }
+                            }
+                        }
                     }
-                }
-
-                while (line != null && line.startsWith("Progress:")) {
-                    line = line.substring("Progress:".length()).trim();
-                    String[] progressData = line.split(",");
-
-                    if (progressData.length == 3) {
-                        LocalDate date = check.convertStringToLocalDate(progressData[0]); 
-                        String exerciseName = progressData[1].trim();
-                        Boolean status = Boolean.valueOf(progressData[2].trim());
-
-                        progressMap.putIfAbsent(date, new HashMap<>());
-                        progressMap.get(date).put(exerciseName, status);
-                    }
-                    line = br.readLine();
+                    Progress progress = new Progress(userID, courseID, progressMap);
+                    progresses.add(progress);
                 }
             }
-
-            if (currentUserID != null && currentCourseID != null) {
-                progresses.add(new Progress(currentUserID, currentCourseID, new HashMap<>(progressMap)));
-            }
-
         } catch (IOException e) {
             System.out.println("Error reading file: " + PATH + ". Please check if the file is accessible.");
         }
-
         return progresses;
     }
 
     @Override
     public void writeFile(List<Progress> progresses) {
-        // Implementation for writing progress data to file can be added here
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(PATH))) {
+            for (Progress progress : progresses) {
+                bw.write(progress.getUserID() + "," + progress.getCourseID());
+                bw.newLine();
+                bw.write("Progess:");
+                bw.newLine();
+
+                for (Map.Entry<LocalDate, Map<String, Boolean>> entry : progress.getProgress().entrySet()) {
+                    LocalDate date = entry.getKey();
+                    Map<String, Boolean> exercises = entry.getValue();
+
+                    for (Map.Entry<String, Boolean> exerciseEntry : exercises.entrySet()) {
+                        String exerciseName = exerciseEntry.getKey();
+                        Boolean status = exerciseEntry.getValue();
+
+                        bw.write("Date:" + date + "," + exerciseName + "," + status);
+                        bw.newLine();
+                    }
+                }
+                bw.newLine(); 
+            }
+            System.out.println("Progress data written successfully to: " + PATH);
+        } catch (IOException e) {
+            System.out.println("Error writing to file: " + PATH + ". Please check if the file is accessible.");
+        }
     }
+
 }

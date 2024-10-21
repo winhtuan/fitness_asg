@@ -43,14 +43,24 @@ public class Progress {
     @Override
     public String toString() {
         StringBuilder progressDetails = new StringBuilder();
+
         for (Map.Entry<LocalDate, Map<String, Boolean>> entry : progress.entrySet()) {
             LocalDate date = entry.getKey();
             Map<String, Boolean> exercises = entry.getValue();
-            progressDetails.append(String.format("  Date: %s, Exercises: %s\n",
-                    date, exercises.toString()));
+            progressDetails.append("  Date: ").append(date).append("\n");
+
+            for (Map.Entry<String, Boolean> exerciseEntry : exercises.entrySet()) {
+                String exerciseName = exerciseEntry.getKey();
+                Boolean completed = exerciseEntry.getValue();
+                progressDetails.append("    Exercise: ").append(exerciseName)
+                        .append(", Completed: ").append(completed).append("\n");
+            }
         }
 
-        return String.format("User ID: %s, Course ID: %s, Progress:\n%s",
-                userID, courseID, progressDetails.toString());
+        return String.format(
+                "User ID: %s, Course ID: %s\nProgress Details:\n%s",
+                userID, courseID, progressDetails.toString()
+        );
     }
+
 }

@@ -1,7 +1,5 @@
 package Model;
 
-import model.Coach;
-
 public class Course {
 
     private String courseId;
@@ -25,7 +23,8 @@ public class Course {
 
     @Override
     public String toString() {
-        return "courseId=" + courseId + ", courseName=" + courseName + ", price=" + price + ", time=" + time + ", coach=" + coachID + ", exercise=" + workout;
+        return String.format("%-12s | %-15s | %-8.2f | %-10s | %-8s | \n%s",
+                courseId, courseName, price, time, coachID, workout.toString());
     }
 
     public double getPrice() {
@@ -77,6 +76,6 @@ public class Course {
     }
 
     public int getExerciseCount() {
-        return workout.getExercise().size(); 
+        return workout.getExercise().size();
     }
 }

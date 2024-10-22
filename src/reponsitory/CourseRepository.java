@@ -26,15 +26,16 @@ public class CourseRepository implements Reponsitory<Course, List<Course>> {
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(",");
                 if (values.length >= 6) {
-                    String courseId = values[0];
-                    String courseName = values[1];
-                    double price = Double.parseDouble(values[2]);
-                    String time = values[3];
-                    String coachID = values[4];
+                    String courseId = values[0].trim();
+                    String courseName = values[1].trim();
+                    double price = Double.parseDouble(values[2].trim());
+                    String time = values[3].trim();
+                    String coachID = values[4].trim();
                     String workoutDescription = values[5].trim();
 
                     line = br.readLine();
                     if (line == null || !line.startsWith("Exercises:")) {
+                        System.err.println("Expected 'Exercises:' but found: " + line);
                         break;
                     }
                     String[] exerciseLine = line.split(":")[1].split(",");
@@ -42,6 +43,7 @@ public class CourseRepository implements Reponsitory<Course, List<Course>> {
 
                     line = br.readLine();
                     if (line == null || !line.startsWith("Nutrition Plan:")) {
+                        System.err.println("Expected 'Nutrition Plan:' but found: " + line);
                         break;
                     }
                     String[] nutritionLine = line.split(":")[1].split(",");
@@ -49,11 +51,14 @@ public class CourseRepository implements Reponsitory<Course, List<Course>> {
 
                     Map<LocalDate, List<String>> schedule = new HashMap<>();
 
-                    while ((line = br.readLine()) != null && line.startsWith("Date:")) {
-                        String[] scheduleData = line.split(" - Activities: ");
-                        LocalDate date = LocalDate.parse(scheduleData[0].substring(6), DATE_FORMAT);
-                        List<String> activities = Arrays.asList(scheduleData[1].split(", "));
-                        schedule.put(date, activities);
+                    line = br.readLine(); 
+                    if (line != null && line.trim().equals("Schedule:")) {
+                        while ((line = br.readLine()) != null && line.startsWith("Date:")) {
+                            String[] scheduleData = line.split(" - Activities: ");
+                            LocalDate date = LocalDate.parse(scheduleData[0].substring(6).trim(), DATE_FORMAT);
+                            List<String> activities = Arrays.asList(scheduleData[1].split(","));
+                            schedule.put(date, activities);
+                        }
                     }
 
                     Workout workout = new Workout(workoutDescription, exercises, nutrition, schedule);
@@ -63,7 +68,7 @@ public class CourseRepository implements Reponsitory<Course, List<Course>> {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error reading file: " + PATH + ". Please check if the file is accessible.");
+            System.err.println("Error reading file: " + PATH + ". " + e.getMessage());
         }
         return listCourse;
     }

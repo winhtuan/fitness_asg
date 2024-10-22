@@ -1,6 +1,7 @@
 package Model;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,49 @@ public class Workout {
         this.exercise = exercise;
         this.nutrition = nutrition;
         this.schedule = schedule;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder details = new StringBuilder();
+        details.append("Workout Details:\n");
+        details.append("Description: ").append(description).append("\n");
+
+        details.append("Workouts: ");
+        for (int i = 0; i < exercise.size(); i++) {
+            details.append(exercise.get(i));
+            if (i < exercise.size() - 1) {
+                details.append(" - ");
+            }
+        }
+        details.append("\n");
+
+        details.append("Nutrition: ");
+        for (int i = 0; i < nutrition.size(); i++) {
+            details.append(nutrition.get(i));
+            if (i < nutrition.size() - 1) {
+                details.append(" - ");
+            }
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        details.append("\n");
+        if (schedule.isEmpty()) {
+            details.append("No scheduled workouts available.\n");
+        } else {
+            details.append("Schedule:\n");
+            for (Map.Entry<LocalDate, List<String>> entry : schedule.entrySet()) {
+                details.append("Date: ").append(entry.getKey().format(formatter)).append(" - ");
+                for (int i = 0; i < entry.getValue().size(); i++) {
+                    details.append(entry.getValue().get(i));
+                    if (i < entry.getValue().size() - 1) {
+                        details.append(", ");
+                    }
+                }
+                details.append("\n");
+            }
+        }
+
+        return details.toString();
     }
 
     public Map<LocalDate, List<String>> getSchedule() {

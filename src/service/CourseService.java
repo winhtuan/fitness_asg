@@ -51,7 +51,7 @@ public class CourseService implements ICourseService {
             }
         }
 
-        display();
+        displayMoreDetail();
         do {
             String courseId = check.getInputString("Enter course ID to register: ", COURSE_REGEX, "Course ID");
             Course course = findByID(courseId);
@@ -61,7 +61,6 @@ public class CourseService implements ICourseService {
                 System.out.println("Course with ID " + courseId + " not found.");
             }
         } while (check.continueConfirm("Do you want to continue registering for courses?"));
-
         displayUserCourses(userId);
     }
 
@@ -91,6 +90,7 @@ public class CourseService implements ICourseService {
         }
     }
 
+    // display for guest 
     @Override
     public void display() {
         System.out.println("List All Courses:");
@@ -105,6 +105,17 @@ public class CourseService implements ICourseService {
         }
         System.out.println("-".repeat(60));
     }
+    // display for user
+    @Override
+    public void displayMoreDetail() {
+        System.out.printf("%-12s | %-15s | %-8s | %-10s | %-8s |%n",
+                "Course ID", "Course Name", "Price", "Time", "Coach ID");
+        System.out.println("-".repeat(80));
+        for (Course course : listCourse) {
+            System.out.println(course);
+            System.out.println("-".repeat(80));
+        }
+    }
 
     @Override
     public Course findByID(String id) {
@@ -115,4 +126,5 @@ public class CourseService implements ICourseService {
         }
         return null;
     }
+
 }

@@ -94,17 +94,19 @@ public class CourseService implements ICourseService {
     @Override
     public void display() {
         System.out.println("List All Courses:");
-        System.out.printf("%-10s | %-30s | %-15s | %-20s\n", "Course ID", "Course Name", "Price", "Description");
+        System.out.printf("%-10s | %-10s | %-30s | %-15s | %-20s\n", "Course ID", "Coach ID", "Course Name", "Price", "Description");
         System.out.println("-".repeat(60));
         for (Course course : listCourse) {
-            System.out.printf("%-10s | %-30s | $%-15.2f | %-20s\n",
+            System.out.printf("%-10s | %-10s | %-30s | $%-15.2f | %-20s\n",
                     course.getCourseId(),
+                    course.getCoachID(),
                     course.getCourseName(),
                     course.getPrice(),
                     course.getWorkout().getDescription());
         }
         System.out.println("-".repeat(60));
     }
+
     // display for user
     @Override
     public void displayMoreDetail() {

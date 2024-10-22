@@ -1,10 +1,12 @@
 package controler;
 
+import service.CourseService;
+import service.ProgressService;
 import view.Menu;
 
 public class Gym extends Menu {
 
-    private static String[] choices = {"", "", "", "", "", "", "Exit"};
+    private static String[] choices = {"", "", "Register Course", "", "View Progress", "", "Exit"};
 
     public Gym() {
         super("Fitness System", choices);
@@ -24,10 +26,12 @@ public class Gym extends Menu {
             case 2 -> {
             }
             case 3 -> {
+                new CourseService().registerUserToCourse();
             }
             case 4 -> {
             }
             case 5 -> {
+                new ProgressService().displayUsersByCoach();
             }
             case 6 -> {
             }

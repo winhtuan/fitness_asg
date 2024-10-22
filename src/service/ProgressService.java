@@ -27,10 +27,6 @@ public class ProgressService implements IProgressService{
         allProgresses = new ProgressRepository().readFile();
     }
 
-    public static void main(String[] args) {
-        new ProgressService().displayUsersByCoach();
-    }
-
     public void displayUsersByCoach() {
         List<String> registeredUsers = new ArrayList<>();
         String coachId = check.getID("Enter your Coach ID: ", "COA-\\d{4}", "Coach ID");

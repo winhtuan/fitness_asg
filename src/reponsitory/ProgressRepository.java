@@ -80,13 +80,12 @@ public class ProgressRepository implements IProgressReponsitory {
                         String exerciseName = exerciseEntry.getKey();
                         Boolean status = exerciseEntry.getValue();
 
-                        bw.write("Date:" + date + "," + exerciseName + "," + status);
+                        bw.write("Date:" + date.format(DATE_FORMAT) + "," + exerciseName + "," + status);
                         bw.newLine();
                     }
                 }
                 bw.newLine(); 
             }
-            System.out.println("Progress data written successfully to: " + PATH);
         } catch (IOException e) {
             System.out.println("Error writing to file: " + PATH + ". Please check if the file is accessible.");
         }

@@ -31,7 +31,7 @@ public class Gym extends Menu {
             case 4 -> {
             }
             case 5 -> {
-                new ProgressService().displayUsersByCoach();
+                new ProgressService().display();
             }
             case 6 -> {
             }

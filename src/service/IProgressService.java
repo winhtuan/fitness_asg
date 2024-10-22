@@ -1,6 +1,8 @@
 package service;
 
-public interface IProgressService {
+import model.Progress;
+
+public interface IProgressService extends Service<Progress>{
 
     void viewUserProgress(String userId, String courseID);
 

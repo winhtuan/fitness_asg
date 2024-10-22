@@ -3,9 +3,6 @@ package reponsitory;
 import java.util.List;
 import model.Progress;
 
-public interface IProgressReponsitory {
+public interface IProgressReponsitory extends Reponsitory<Progress, List<Progress>>{
 
-    List<Progress> readFile();
-
-    void writeFile(List<Progress> progresses);
 }

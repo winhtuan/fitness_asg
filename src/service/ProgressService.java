@@ -13,7 +13,7 @@ import reponsitory.ProgressRepository;
 import reponsitory.RegisteringRepository;
 import view.Validation;
 
-public class ProgressService implements IProgressService{
+public class ProgressService implements IProgressService {
 
     private List<Progress> allProgresses;
     private List<Course> listCourse;
@@ -22,45 +22,9 @@ public class ProgressService implements IProgressService{
 
     public ProgressService() {
         courseService = new CourseService();
-        listCourse = new CourseRepository().readFile();
         check = new Validation();
         allProgresses = new ProgressRepository().readFile();
-    }
-
-    public void displayUsersByCoach() {
-        List<String> registeredUsers = new ArrayList<>();
-        String coachId = check.getID("Enter your Coach ID: ", "COA-\\d{4}", "Coach ID");
-        Coach coach = new CoachService().findByID(coachId);
-        if (coach == null) {
-            System.out.println("Coach ID not found. Please try again.");
-            return;
-        }
-        for (Course course : listCourse) {
-            if (course.getCoachID().equalsIgnoreCase(coachId)) {
-                for (Map.Entry<String, List<Course>> entry : courseService.getListRegistering().entrySet()) {
-                    for (Course registeredCourse : entry.getValue()) {
-                        if (registeredCourse.getCourseId().equals(course.getCourseId())) {
-                            registeredUsers.add(entry.getKey());
-                        }
-                    }
-                }
-            }
-        }
-        if (registeredUsers.isEmpty()) {
-            System.out.println("No users found for coach ID: " + coachId);
-            return;
-        }
-        System.out.println("Users registered with coach ID " + coachId + ":");
-        for (String userId : registeredUsers) {
-            Users user = new UserService().findByID(userId);
-            if (user != null) {
-                System.out.println("User ID: " + user.getId() + ", Name: " + user.getName());
-            }
-        }
-        String selectedUserId = check.getID("Enter the user ID to view progress: ", "CUS-\\d{4}", "User ID");
-        courseService.displayUserCourses(selectedUserId);
-        String selectedCourseID = check.getID("Enter the courseID: ", "COR-\\d{4}", "Course ID");
-        viewUserProgress(selectedUserId, selectedCourseID);
+        listCourse = new CourseRepository().readFile();
     }
 
     @Override
@@ -110,6 +74,100 @@ public class ProgressService implements IProgressService{
 
     @Override
     public void updateUserProgress(String userId, String courseID) {
+        Progress userProgress = allProgresses.stream()
+                .filter(up -> up.getUserID().equals(userId) && up.getCourseID().equals(courseID))
+                .findFirst()
+                .orElse(null);
+
+        if (userProgress != null) {
+            Map<LocalDate, Map<String, Boolean>> progressMap = userProgress.getProgress();
+
+            if (progressMap.isEmpty()) {
+                System.out.println("No exercises recorded for this course.");
+                return;
+            }
+
+            System.out.println("Available workout dates and statuses for user " + userId + ":");
+            for (Map.Entry<LocalDate, Map<String, Boolean>> entry : progressMap.entrySet()) {
+                LocalDate date = entry.getKey();
+                Map<String, Boolean> statusMap = entry.getValue();
+                System.out.print("Date: " + date.format(DATE_FORMAT));
+                for (Map.Entry<String, Boolean> statusEntry : statusMap.entrySet()) {
+                    String exercise = statusEntry.getKey();
+                    Boolean status = statusEntry.getValue();
+                    System.out.println(" - Exercise: " + exercise + " - Status: " + (status ? "Completed" : "Not Completed"));
+                }
+            }
+
+            LocalDate inputDate = check.getDate("Enter the date to update status: ");
+            if (progressMap.containsKey(inputDate)) {
+                Map<String, Boolean> statusMap = progressMap.get(inputDate);
+                System.out.print("Exercises for date " + inputDate.format(DATE_FORMAT) + ":");
+                for (String exercise : statusMap.keySet()) {
+                    System.out.println("Exercise: " + exercise + " - Status: " + (statusMap.get(exercise) ? "Completed" : "Not Completed"));
+                }
+
+                for (String exercise : statusMap.keySet()) {
+                    System.out.print("Update status for " + exercise);
+                    boolean newStatus = check.getBoolean("Enter the status (true/false): ");
+                    statusMap.put(exercise, newStatus);
+                }
+
+                System.out.println("Status updated successfully for date " + inputDate + ".");
+                new ProgressRepository().writeFile(allProgresses);
+            } else {
+                System.out.println("No progress found for the entered date: " + inputDate);
+            }
+        } else {
+            System.out.println("No progress found for user " + userId + " in course " + courseID);
+        }
         
     }
+
+    public static void main(String[] args) {
+        new ProgressService().updateUserProgress("CUS-0001", "COR-0001");
+    }
+
+    @Override
+    public void display() {
+        List<String> registeredUsers = new ArrayList<>();
+        String coachId = check.getID("Enter your Coach ID: ", COACH_REGEX, "Coach ID");
+        Coach coach = new CoachService().findByID(coachId);
+        if (coach == null) {
+            System.out.println("Coach ID not found. Please try again.");
+            return;
+        }
+        for (Course course : listCourse) {
+            if (course.getCoachID().equalsIgnoreCase(coachId)) {
+                for (Map.Entry<String, List<Course>> entry : courseService.getListRegistering().entrySet()) {
+                    for (Course registeredCourse : entry.getValue()) {
+                        if (registeredCourse.getCourseId().equals(course.getCourseId())) {
+                            registeredUsers.add(entry.getKey());
+                        }
+                    }
+                }
+            }
+        }
+        if (registeredUsers.isEmpty()) {
+            System.out.println("No users found for coach ID: " + coachId);
+            return;
+        }
+        System.out.println("Users registered with coach ID " + coachId + ":");
+        for (String userId : registeredUsers) {
+            Users user = new UserService().findByID(userId);
+            if (user != null) {
+                System.out.println("User ID: " + user.getId() + ", Name: " + user.getName());
+            }
+        }
+        String selectedUserId = check.getID("Enter the user ID to view progress: ", USER_REGEX, "User ID");
+        courseService.displayUserCourses(selectedUserId);
+        String selectedCourseID = check.getID("Enter the courseID: ", COURSE_REGEX, "Course ID");
+        viewUserProgress(selectedUserId, selectedCourseID);
+    }
+
+    @Override
+    public Progress findByID(String id) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

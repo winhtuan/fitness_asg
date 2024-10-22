@@ -1,17 +1,18 @@
 CUS-0001,COR-0001
 Progess:
-Date:6/10/2024,Squats,true
-Date:9/10/2024,Deadlifts,true
-Date:12/10/2024,Push-ups,true
 Date:15/10/2024,Pull-ups,false
-Date:18/10/2024,Squats,false
+Date:12/10/2024,Push-ups,true
+Date:09/10/2024,Deadlifts,true
+Date:06/10/2024,Squats,true
 Date:20/10/2024,Deadlifts,false
+Date:18/10/2024,Squats,false
 
 CUS-0002,COR-0001
 Progess:
-Date:6/10/2024,Warrior Pose,true
-Date:9/10/2024,Sun Salutation,true
-Date:12/10/2024,Tree Pose,true
 Date:15/10/2024,Bridge Pose,true
-Date:18/10/2024,Tree Pose,false
+Date:12/10/2024,Tree Pose,true
+Date:09/10/2024,Sun Salutation,true
+Date:06/10/2024,Warrior Pose,true
 Date:20/10/2024,Bridge Pose,false
+Date:18/10/2024,Tree Pose,false
+

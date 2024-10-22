@@ -1,11 +1,11 @@
 LAB211 - N7A
-- Title
+- Title:
 Create a Java console program to manage a Fitness course
-- Background Context
+- Background Context:
 The fitness course management system was developed for managing Fitness courses and users. The system
 helps users easily view and track suitable courses. The system can make it possible to reduce effort, work
 efficiently, and increase revenue opportunities for managers and coaches.
-- Program Specifications
+- Program Specifications:
 1. Display a list of available courses for users.
 2. Provide detailed information about each course’s, including course name, course description, course workouts and course coach.
 3. Allow users to subscribe to their preferred course.

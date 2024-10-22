@@ -6,7 +6,7 @@ import view.Menu;
 
 public class Gym extends Menu {
 
-    private static String[] choices = {"", "", "Register Course", "", "View Progress", "", "Exit"};
+    private static String[] choices = {"", "", "Register Course", "", "View Progress", "", "", "", "", "Exit"};
 
     public Gym() {
         super("Fitness System", choices);

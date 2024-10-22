@@ -11,10 +11,14 @@ public interface Service<T> {
     final String USER_REGEX = "CUS-\\d{4}";
     final String COURSE_REGEX = "COR-\\d{4}";
     final String COACH_REGEX = "COA-\\d{4}";
+    
+    final String LOGIN_AMIN = "^[a-zA-Z0-9]{2,}@admin\\.com$";
+    final String LOGIN_USER = "^[a-zA-Z0-9]{2,}@user\\.com$";
+    final String LOGIN_COACH = "^[a-zA-Z0-9]{2,}@coach\\.com$";
 
     final String TEXT_REGEX = "^([A-Za-z]+(?:\\s[A-Za-z]+)*)$";
     final String SSN_REGEX = "^\\d{12}$";
     final String PHONE_REGEX = "^0\\d{9}$";
-    final String EMAIL_REGEX = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9.-]+$";
+    final String EMAIL_REGEX = "^[a-zA-Z0-9_.+-]+@gmail\\.com$";
     final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 }
